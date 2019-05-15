@@ -46,23 +46,6 @@ impl Game {
     }
 }
 
-impl Display for Game {
-    fn fmt(&self, fmt: &mut Formatter) -> std::fmt::Result {
-        for row in 0..self.frame.height {
-            for column in 0..self.frame.width {
-                let c = if row == self.ball.y  && column == self.ball.x {
-                    'o'
-                } else {
-                    ' '
-                };
-                write!(fmt, "{}", c)?;
-            }
-            write!(fmt, "\n")?;
-        }
-        Ok(())
-    }
-}
-
 impl Ball {
     fn bounce(&mut self, frame: &Frame) {
         if self.x == 0 {
@@ -100,10 +83,12 @@ fn main() {
 
     loop {
         window.clear();
-        window.printw(game.to_string());
+        window.mv((game.ball.y + 1) as i32, (game.ball.x + 1 ) as i32);
+        window.delch();
+        window.addch('o');
         window.border('|','|','-','-','+','+','+','+');
         window.refresh();
         game.step();
-        pancurses::napms(16);
+        pancurses::napms(33);
     }
 }
