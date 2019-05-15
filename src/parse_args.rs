@@ -1,13 +1,14 @@
 #[derive(Debug)]
-struct Frame {
-    width: u32,
-    height: u32,
+pub struct Frame {
+    pub width: u32,
+    pub height: u32,
 }
 
 #[derive(Debug)]
-enum ParseError {
+pub enum ParseError {
     TooFewArgs,
     TooManyArgs,
+    TooSmallGridSize(u32,u32),
     InvalidInteger(String),
 }
 
@@ -15,7 +16,7 @@ struct ParseArgs(std::env::Args);
 
 impl ParseArgs {
     fn new() -> ParseArgs {
-        unimplemented!()
+        ParseArgs(std::env::args())
     }
 
     fn require_arg(&mut self) -> Result<String, ParseError> {
@@ -40,7 +41,7 @@ fn parse_u32(s: String) -> Result<u32, ParseError> {
     }
 }
 
-fn parse_args() -> Result<Frame, ParseError> {
+pub fn parse_args() -> Result<Frame, ParseError> {
     let mut args = ParseArgs::new();
 
     args.require_arg()?;
@@ -53,7 +54,11 @@ fn parse_args() -> Result<Frame, ParseError> {
     let width = parse_u32(width_str)?;
     let height = parse_u32(height_str)?;
 
-    Ok(Frame {width, height})
+    if width > 1 && height > 1 {
+        Ok(Frame {width, height})
+    } else {
+        Err(ParseError::TooSmallGridSize(width, height))
+    }
 }
 
 fn main () {
