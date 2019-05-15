@@ -48,17 +48,7 @@ impl Game {
 
 impl Display for Game {
     fn fmt(&self, fmt: &mut Formatter) -> std::fmt::Result {
-        let top_bottom = |fmt: &mut Formatter| -> std::fmt::Result {
-            write!(fmt, "+")?;
-            for _ in 0..self.frame.width {
-                write!(fmt, "-")?;
-            }
-            write!(fmt, "+\n")
-        };
-
-        top_bottom(fmt)?;
         for row in 0..self.frame.height {
-            write!(fmt, "|")?;
             for column in 0..self.frame.width {
                 let c = if row == self.ball.y  && column == self.ball.x {
                     'o'
@@ -67,9 +57,9 @@ impl Display for Game {
                 };
                 write!(fmt, "{}", c)?;
             }
-            write!(fmt, "|\n")?;
+            write!(fmt, "\n")?;
         }
-        top_bottom(fmt)
+        Ok(())
     }
 }
 
@@ -103,17 +93,17 @@ fn main() {
     let window = pancurses::initscr();
     let (max_x, max_y) = window.get_max_yx();
     let frame = Frame {
-        width: (max_y - 4) as u32, 
-        height: (max_x - 4) as u32,
+        width: (max_y - 2) as u32, 
+        height: (max_x - 2) as u32,
     };
     let mut game = Game::new(frame);
-    let sleep_duration = std::time::Duration::from_millis(33);
 
     loop {
         window.clear();
         window.printw(game.to_string());
+        window.border('|','|','-','-','+','+','+','+');
         window.refresh();
         game.step();
-        std::thread::sleep(sleep_duration);
+        pancurses::napms(16);
     }
 }
