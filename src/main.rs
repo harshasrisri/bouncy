@@ -1,8 +1,9 @@
 use std::fmt::{Display, Formatter};
 
-mod parse_args;
-
-use self::parse_args::Frame;
+struct Frame {
+    width: u32,
+    height: u32,
+}
 
 enum VertDir {
     Up,
@@ -98,12 +99,20 @@ impl Ball {
     }
 }
 
-fn main() -> Result<(), self::parse_args::ParseError> {
-    let frame = parse_args::parse_args()?;
+fn main() {
+    let window = pancurses::initscr();
+    let (max_x, max_y) = window.get_max_yx();
+    let frame = Frame {
+        width: (max_y - 4) as u32, 
+        height: (max_x - 4) as u32,
+    };
     let mut game = Game::new(frame);
     let sleep_duration = std::time::Duration::from_millis(33);
+
     loop {
-        println!("{}", game);
+        window.clear();
+        window.printw(game.to_string());
+        window.refresh();
         game.step();
         std::thread::sleep(sleep_duration);
     }
