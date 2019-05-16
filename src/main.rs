@@ -1,8 +1,6 @@
-use std::fmt::{Display, Formatter};
-
 struct Frame {
-    width: u32,
-    height: u32,
+    width: i32,
+    height: i32,
 }
 
 enum VertDir {
@@ -16,8 +14,8 @@ enum HorizDir {
 }
 
 struct Ball {
-    x: u32,
-    y: u32,
+    x: i32,
+    y: i32,
     vert_dir: VertDir,
     horiz_dir: HorizDir,
 }
@@ -28,12 +26,25 @@ struct Game {
 }
 
 impl Game {
-    fn new(frame: Frame) -> Game {
-        Game {
-            frame,
+    fn new (window: &pancurses::Window) -> Game {
+        pancurses::curs_set(0);
+        pancurses::noecho();
+        pancurses::cbreak();
+
+        window.clear();
+        window.refresh();
+        window.nodelay(true);
+        window.border('|','|','-','-','+','+','+','+');
+
+        let (height, width) = window.get_max_yx();
+
+        Game { 
+            frame: Frame { 
+                width: width - 2, height: height - 2
+            },
             ball: Ball {
-                x: 2,
-                y: 4,
+                x: width / 2,
+                y: height / 2,
                 vert_dir: VertDir::Up,
                 horiz_dir: HorizDir::Left,
             }
@@ -74,38 +85,24 @@ impl Ball {
 
 fn main() {
     let window = pancurses::initscr();
-    let (max_x, max_y) = window.get_max_yx();
-    let frame = Frame {
-        width: (max_y - 2) as u32, 
-        height: (max_x - 2) as u32,
-    };
-    let mut game = Game::new(frame);
-
-    pancurses::curs_set(0);
-    pancurses::noecho();
-    pancurses::cbreak();
-
-    window.border('|','|','-','-','+','+','+','+');
-    window.nodelay(true);
+    let mut game = Game::new(&window);
 
     loop {
-        let (x, y) = ((game.ball.y + 1) as i32, (game.ball.x + 1) as i32);
+        let (x, y) = (game.ball.y + 1, game.ball.x + 1);
 
-        window.mv(x,y);
-        window.addch('o');
+        window.mvaddch(x, y, 'O');
 
         window.refresh();
-        pancurses::napms(30);
+        pancurses::napms(15);
 
-        window.mv(x,y);
-        window.addch(' ');
+        window.mvaddch(x, y, ' ');
 
         game.step();
 
         match window.getch() {
             Some(pancurses::Input::Character('q')) => break,
             Some(pancurses::Input::Character('Q')) => break,
-            Some(input) => (),
+            Some(_input) => (),
             None => (),
         }
     }
