@@ -85,21 +85,30 @@ fn main() {
     pancurses::noecho();
     pancurses::cbreak();
 
+    window.border('|','|','-','-','+','+','+','+');
+    window.nodelay(true);
+
     loop {
-        window.clear();
-        window.timeout(2);
+        let (x, y) = ((game.ball.y + 1) as i32, (game.ball.x + 1) as i32);
+
+        window.mv(x,y);
+        window.addch('o');
+
+        window.refresh();
+        pancurses::napms(30);
+
+        window.mv(x,y);
+        window.addch(' ');
+
+        game.step();
+
         match window.getch() {
             Some(pancurses::Input::Character('q')) => break,
             Some(pancurses::Input::Character('Q')) => break,
             Some(input) => (),
             None => (),
         }
-        window.mv((game.ball.y + 1) as i32, (game.ball.x + 1 ) as i32);
-        window.delch();
-        window.addch('o');
-        window.border('|','|','-','-','+','+','+','+');
-        window.refresh();
-        game.step();
-        pancurses::napms(30);
     }
+    window.clear();
+    window.refresh();
 }
