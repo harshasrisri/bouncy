@@ -81,14 +81,25 @@ fn main() {
     };
     let mut game = Game::new(frame);
 
+    pancurses::curs_set(0);
+    pancurses::noecho();
+    pancurses::cbreak();
+
     loop {
         window.clear();
+        window.timeout(2);
+        match window.getch() {
+            Some(pancurses::Input::Character('q')) => break,
+            Some(pancurses::Input::Character('Q')) => break,
+            Some(input) => (),
+            None => (),
+        }
         window.mv((game.ball.y + 1) as i32, (game.ball.x + 1 ) as i32);
         window.delch();
         window.addch('o');
         window.border('|','|','-','-','+','+','+','+');
         window.refresh();
         game.step();
-        pancurses::napms(33);
+        pancurses::napms(30);
     }
 }
