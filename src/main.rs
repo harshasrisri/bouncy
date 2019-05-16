@@ -102,6 +102,10 @@ fn main() {
         match window.getch() {
             Some(pancurses::Input::Character('q')) => break,
             Some(pancurses::Input::Character('Q')) => break,
+            Some(pancurses::Input::KeyResize) => {
+                pancurses::resize_term(0,0);
+                game = Game::new(&window);
+            },
             Some(_input) => (),
             None => (),
         }
